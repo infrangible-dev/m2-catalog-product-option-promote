@@ -1,0 +1,107 @@
+<?php
+
+declare(strict_types=1);
+
+use Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\File;
+use Magento\Framework\DataObject;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Magento\Framework\View\TemplateEngine\Php;
+
+/**
+ * @author      Andreas Knollmann
+ * @copyright   2014-2025 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+/** @var Php $this */
+/** @var Escaper $escaper */
+/** @var SecureHtmlRenderer $secureRenderer */
+/** @var File $block */
+
+$option = $block->getOption();
+$item = $block->getItem();
+/** @var DataObject $fileInfo */
+$fileInfo = $block->getFileInfo();
+$fileExists = $fileInfo->hasData();
+$fileName = 'cart_' . $escaper->escapeHtmlAttr($item->getId()) . '_options_' . $escaper->escapeHtmlAttr($option->getId()) . '_file';
+$fieldNameAction = $fileName . '_action';
+$fieldValueAction = $fileExists ? 'save_old' : 'save_new';
+$fileNamed = $fileName . '_name';
+$class = $option->getIsRequire() ? ' required' : '';
+?>
+
+<div class="field file<?= /* @noEscape */ $class; ?>">
+    <label class="label" for="<?= /* @noEscape */ $fileName; ?>" id="<?= /* @noEscape */ $fileName; ?>-label">
+        <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
+        <?= /* @noEscape */ $block->getFormattedPrice(); ?>
+    </label>
+    <?php if ($fileExists): ?>
+        <div class="control">
+            <span class="<?= /* @noEscape */ $fileNamed; ?>"><?= $escaper->escapeHtml($fileInfo->getDataUsingMethod('title')); ?></span>
+            <a href="#" class="label" id="change-<?= /* @noEscape */ $fileName; ?>" >
+                <?= $escaper->escapeHtml(__('Change')); ?>
+            </a>
+            <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+                'onclick',
+                'event.preventDefault()',
+                'a#change-' ./* @noEscape */ $fileName
+            ); ?>
+            <?php if (!$option->getIsRequire()):?>
+                <input type="checkbox" id="delete-<?= /* @noEscape */ $fileName; ?>" />
+                <span class="label"><?= $escaper->escapeHtml(__('Delete')); ?></span>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+    <div class="control"
+         id="input-box-<?= /* @noEscape */ $fileName; ?>"
+         data-mage-init='{"priceOptionFile": {
+            "fileName":"<?= /* @noEscape */ $fileName; ?>",
+            "fileNamed":"<?= /* @noEscape */ $fileNamed; ?>",
+            "fieldNameAction":"<?= /* @noEscape */ $fieldNameAction; ?>",
+            "changeFileSelector":"#change-<?= /* @noEscape */ $fileName; ?>",
+            "deleteFileSelector":"#delete-<?= /* @noEscape */ $fileName; ?>"}
+         }'>
+        <input type="file"
+               name="<?= /* @noEscape */ $fileName; ?>"
+               id="<?= /* @noEscape */ $fileName; ?>"
+               class="product-custom-option<?= $option->getIsRequire() ? ' required' : ''; ?>"
+            <?= $fileExists ? 'disabled="disabled"' : ''; ?> />
+        <input type="hidden"
+               class="product-custom-option"
+               name="<?= /* @noEscape */ $fieldNameAction; ?>"
+               value="<?= /* @noEscape */ $fieldValueAction; ?>" />
+        <?php if ($option->getFileExtension()): ?>
+            <p class="note">
+                <?= $escaper->escapeHtml(__('Compatible file extensions to upload')); ?>:
+                <strong><?= $escaper->escapeHtml($option->getFileExtension()); ?></strong>
+            </p>
+        <?php endif; ?>
+        <?php if ($option->getImageSizeX() > 0): ?>
+            <p class="note">
+                <?= $escaper->escapeHtml(__('Maximum image width')); ?>:
+                <strong><?= (int)$option->getImageSizeX(); ?> <?= $escaper->escapeHtml(__('px.')); ?></strong>
+            </p>
+        <?php endif; ?>
+        <?php if ($option->getImageSizeY() > 0): ?>
+            <p class="note">
+                <?= $escaper->escapeHtml(__('Maximum image height')); ?>:
+                <strong><?= (int)$option->getImageSizeY(); ?> <?= $escaper->escapeHtml(__('px.')); ?></strong>
+            </p>
+        <?php endif; ?>
+    </div>
+    <?= $fileExists ?
+        /* @noEscape */ $secureRenderer->renderStyleAsTag(
+            'display:none',
+            '#input-box-' . /* @noEscape */ $fileName
+        ) : ''; ?>
+</div>
+<script type="text/javascript">
+    require(['jquery', 'domReady'], function ($, domReady) {
+        domReady(function() {
+            var form = $('#form-validate');
+            form.attr('enctype', 'multipart/form-data');
+            form.attr('encoding', 'multipart/form-data')
+        });
+    });
+</script>

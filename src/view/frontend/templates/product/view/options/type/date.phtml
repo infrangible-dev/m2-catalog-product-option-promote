@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+use Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Date;
+use Magento\Catalog\Api\Data\ProductCustomOptionInterface;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\TemplateEngine\Php;
+
+/**
+ * @author      Andreas Knollmann
+ * @copyright   2014-2025 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+/** @var Php $this */
+/** @var Escaper $escaper */
+/** @var Date $block */
+
+$option = $block->getOption();
+$optionId = $escaper->escapeHtmlAttr($option->getId());
+$item = $block->getItem();
+$itemId = $item->getId();
+$class = $option->getIsRequire() ? ' required' : '';
+$isDate = $option->getType() == ProductCustomOptionInterface::OPTION_TYPE_DATE_TIME ||
+    $option->getType() == ProductCustomOptionInterface::OPTION_TYPE_DATE;
+$isTime = $option->getType() == ProductCustomOptionInterface::OPTION_TYPE_DATE_TIME ||
+    $option->getType() == ProductCustomOptionInterface::OPTION_TYPE_TIME;
+?>
+
+<div class="field date<?= /* @noEscape */ $class; ?>"
+     data-mage-init='{"priceOptionDate":{"fromSelector":"#product_addtocart_form"}}'>
+    <fieldset class="fieldset fieldset-product-options-inner<?= /* @noEscape */ $class; ?>">
+        <legend class="legend">
+            <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
+            <?= /* @noEscape */ $block->getFormattedPrice(); ?>
+        </legend>
+        <div class="control">
+            <?php if ($isDate): ?>
+                <?= $block->getDateHtml(); ?>
+            <?php endif; ?>
+            <?php if ($isTime): ?>
+                <?= $block->getTimeHtml(); ?>
+            <?php endif; ?>
+            <?php if ($option->getIsRequire()): ?>
+                <input type="hidden"
+                       name="validate_datetime_<?= /* @noEscape */ $itemId; ?>_<?= /* @noEscape */ $optionId; ?>"
+                       class="validate-datetime-<?= /* @noEscape */ $itemId; ?>-<?= /* @noEscape */ $optionId; ?>"
+                       value=""
+                       data-validate="{'validate-required-datetime':<?= /* @noEscape */ $optionId; ?>}"/>
+            <?php else: ?>
+                <input type="hidden"
+                       name="validate_datetime_<?= /* @noEscape */ $itemId; ?>_<?= /* @noEscape */ $optionId; ?>"
+                       class="validate-datetime-<?= /* @noEscape */ $itemId; ?>-<?= /* @noEscape */ $optionId; ?>"
+                       value=""
+                       data-validate="{'validate-optional-datetime':<?= /* @noEscape */ $optionId; ?>}"/>
+            <?php endif; ?>
+        </div>
+    </fieldset>
+</div>

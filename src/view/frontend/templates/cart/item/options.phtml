@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+use Infrangible\CatalogProductOptionPromote\Block\Cart\Item\Options;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\TemplateEngine\Php;
+
+/**
+ * @author      Andreas Knollmann
+ * @copyright   2014-2025 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+/** @var Php $this */
+/** @var Escaper $escaper */
+/** @var Options $block */
+
+$options = $block->getOptionList();
+?>
+
+<?php if ($options): ?>
+    <div class="product-options-wrapper" id="product-options-wrapper">
+        <div class="fieldset">
+            <?php foreach ($options as $option): ?>
+                <?= $block->getOptionHtml($option); ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>
+<div class="actions-toolbar">
+    <?= $block->getActionHtml(); ?>
+</div>
