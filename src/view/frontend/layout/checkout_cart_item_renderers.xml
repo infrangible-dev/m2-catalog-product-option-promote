@@ -14,5 +14,19 @@
             <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Select" name="checkout.cart.item.renderers.simple.option.select" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/select.phtml"/>
             <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Date" name="checkout.cart.item.renderers.simple.option.date" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/date.phtml"/>
         </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.configurable">
+            <block class="Magento\Catalog\Block\Product\View\Options\Type\DefaultType" name="checkout.cart.item.renderers.configurable.option.default" template="Magento_Catalog::product/view/options/type/default.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Text" name="checkout.cart.item.renderers.configurable.option.text" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/text.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\File" name="checkout.cart.item.renderers.configurable.option.file" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/file.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Select" name="checkout.cart.item.renderers.configurable.option.select" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/select.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Date" name="checkout.cart.item.renderers.configurable.option.date" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/date.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.bundle">
+            <block class="Magento\Catalog\Block\Product\View\Options\Type\DefaultType" name="checkout.cart.item.renderers.bundle.option.default" template="Magento_Catalog::product/view/options/type/default.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Text" name="checkout.cart.item.renderers.bundle.option.text" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/text.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\File" name="checkout.cart.item.renderers.bundle.option.file" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/file.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Select" name="checkout.cart.item.renderers.bundle.option.select" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/select.phtml"/>
+            <block class="Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Date" name="checkout.cart.item.renderers.bundle.option.date" template="Infrangible_CatalogProductOptionPromote::product/view/options/type/date.phtml"/>
+        </referenceBlock>
     </body>
 </page>

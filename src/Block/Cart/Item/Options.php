@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrangible\CatalogProductOptionPromote\Block\Cart\Item;
 
 use Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\ItemOptionInterface;
+use Infrangible\CatalogProductOptionPromote\Helper\Data;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Option;
 use Magento\Checkout\Block\Cart\Item\Renderer;
@@ -18,6 +19,19 @@ use Magento\Quote\Model\Quote\Item\AbstractItem;
  */
 class Options extends Template
 {
+    /** @var Data */
+    protected $helper;
+
+    public function __construct(Template\Context $context, Data $helper, array $data = [])
+    {
+        parent::__construct(
+            $context,
+            $data
+        );
+
+        $this->helper = $helper;
+    }
+
     protected function _construct()
     {
         $this->setData(
@@ -40,7 +54,10 @@ class Options extends Template
 
     public function getItem(): AbstractItem
     {
-        return $this->getData('item');
+        /** @var AbstractItem $item */
+        $item = $this->getData('item');
+
+        return $item->getParentItem() ? : $item;
     }
 
     public function getProduct(): Product
@@ -81,7 +98,10 @@ class Options extends Template
                 continue;
             }
 
-            if (! $productOption->getData('promote')) {
+            if (! $this->helper->isItemOptionAvailable(
+                $item,
+                $productOption
+            )) {
                 continue;
             }
 

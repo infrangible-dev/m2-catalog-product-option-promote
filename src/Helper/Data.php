@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Infrangible\CatalogProductOptionPromote\Helper;
 
+use Magento\Catalog\Api\Data\ProductCustomOptionInterface;
+use Magento\Catalog\Api\Data\ProductCustomOptionValuesInterface;
 use Magento\Catalog\Model\ResourceModel\Product\Option\Collection;
+use Magento\Framework\DataObject;
+use Magento\Framework\EntityManager\EventManager;
+use Magento\Quote\Model\Quote\Item\AbstractItem;
 use Magento\Store\Model\Store;
 
 /**
@@ -14,6 +19,14 @@ use Magento\Store\Model\Store;
  */
 class Data
 {
+    /** @var EventManager */
+    protected $eventManager;
+
+    public function __construct(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
+    }
+
     public function addPromoteToResult(Collection $collection, $storeId): void
     {
         if ($collection->isLoaded() || $collection->hasFlag('promote')) {
@@ -60,5 +73,49 @@ class Data
             'promote',
             true
         );
+    }
+
+    public function isItemOptionAvailable(AbstractItem $item, ProductCustomOptionInterface $productOption): bool
+    {
+        $isAvailable = true;
+
+        if (! $productOption->getData('promote')) {
+            $isAvailable = false;
+        }
+
+        $checkResult = new DataObject();
+        $checkResult->setData(
+            'is_available',
+            $isAvailable
+        );
+
+        $eventData = ['item' => $item, 'product_option' => $productOption, 'result' => $checkResult];
+
+        $this->eventManager->dispatch(
+            'catalog_product_option_promote_item_option_available',
+            $eventData
+        );
+
+        return $checkResult->getData('is_available');
+    }
+
+    public function isItemOptionValueAvailable(
+        AbstractItem $item,
+        ProductCustomOptionValuesInterface $productOptionValue
+    ): bool {
+        $checkResult = new DataObject();
+        $checkResult->setData(
+            'is_available',
+            true
+        );
+
+        $eventData = ['item' => $item, 'product_option_value' => $productOptionValue, 'result' => $checkResult];
+
+        $this->eventManager->dispatch(
+            'catalog_product_option_promote_item_option_value_available',
+            $eventData
+        );
+
+        return $checkResult->getData('is_available');
     }
 }

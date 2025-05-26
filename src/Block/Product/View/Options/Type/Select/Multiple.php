@@ -1,15 +1,20 @@
-<?php
+<?php /** @noinspection PhpDeprecationInspection */
 
 declare(strict_types=1);
 
 namespace Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\Type\Select;
 
 use Infrangible\CatalogProductOptionPromote\Block\Product\View\Options\ItemOptionInterface;
+use Infrangible\CatalogProductOptionPromote\Helper\Data;
 use Infrangible\CatalogProductOptionPromote\Traits\ItemOption;
 use Magento\Catalog\Api\Data\ProductCustomOptionInterface;
 use Magento\Catalog\Model\Product\Option;
+use Magento\Catalog\Pricing\Price\CalculateCustomOptionCatalogRule;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Pricing\Adjustment\CalculatorInterface;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\View\Element\Html\Select;
+use Magento\Framework\View\Element\Template\Context;
 use Magento\Quote\Model\Quote\Item\AbstractItem;
 
 /**
@@ -20,6 +25,32 @@ use Magento\Quote\Model\Quote\Item\AbstractItem;
 class Multiple extends \Magento\Catalog\Block\Product\View\Options\Type\Select\Multiple implements ItemOptionInterface
 {
     use ItemOption;
+
+    /** @var Data */
+    protected $helper;
+
+    public function __construct(
+        Context $context,
+        \Magento\Framework\Pricing\Helper\Data $pricingHelper,
+        \Magento\Catalog\Helper\Data $catalogData,
+        Data $helper,
+        array $data = [],
+        CalculateCustomOptionCatalogRule $calculateCustomOptionCatalogRule = null,
+        CalculatorInterface $calculator = null,
+        PriceCurrencyInterface $priceCurrency = null
+    ) {
+        parent::__construct(
+            $context,
+            $pricingHelper,
+            $catalogData,
+            $data,
+            $calculateCustomOptionCatalogRule,
+            $calculator,
+            $priceCurrency
+        );
+
+        $this->helper = $helper;
+    }
 
     /**
      * @throws LocalizedException
@@ -53,10 +84,14 @@ class Multiple extends \Magento\Catalog\Block\Product\View\Options\Type\Select\M
             $option
         );
 
-        $select = $this->processSelectOption(
+        $hasValues = $this->processSelectOption(
             $select,
             $option
         );
+
+        if (! $hasValues) {
+            return '';
+        }
 
         if ($optionType === ProductCustomOptionInterface::OPTION_TYPE_MULTIPLE) {
             $extraParams = ' multiple="multiple"';
@@ -119,34 +154,43 @@ class Multiple extends \Magento\Catalog\Block\Product\View\Options\Type\Select\M
         return $select;
     }
 
-    private function processSelectOption(Select $select, Option $option): Select
+    private function processSelectOption(Select $select, Option $option): bool
     {
+        $hasValues = false;
+
         $store = $this->getProduct()->getStore();
 
-        foreach ($option->getValues() as $_value) {
-            $isPercentPriceType = $_value->getPriceType() === 'percent';
+        foreach ($option->getValues() as $optionValue) {
+            if ($this->helper->isItemOptionValueAvailable(
+                $this->getItem(),
+                $optionValue
+            )) {
+                $isPercentPriceType = $optionValue->getPriceType() === 'percent';
 
-            $priceStr = $this->_formatPrice(
-                [
-                    'is_percent'    => $isPercentPriceType,
-                    'pricing_value' => $_value->getPrice($isPercentPriceType)
-                ],
-                false
-            );
+                $priceStr = $this->_formatPrice(
+                    [
+                        'is_percent'    => $isPercentPriceType,
+                        'pricing_value' => $optionValue->getPrice($isPercentPriceType)
+                    ],
+                    false
+                );
 
-            $select->addOption(
-                $_value->getOptionTypeId(),
-                $_value->getTitle() . ' ' . strip_tags($priceStr),
-                [
-                    'price' => $this->pricingHelper->currencyByStore(
-                        $_value->getPrice(true),
-                        $store,
-                        false
-                    )
-                ]
-            );
+                $select->addOption(
+                    $optionValue->getOptionTypeId(),
+                    $optionValue->getTitle() . ' ' . strip_tags($priceStr),
+                    [
+                        'price' => $this->pricingHelper->currencyByStore(
+                            $optionValue->getPrice(true),
+                            $store,
+                            false
+                        )
+                    ]
+                );
+
+                $hasValues = true;
+            }
         }
 
-        return $select;
+        return $hasValues;
     }
 }

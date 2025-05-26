@@ -22,18 +22,22 @@ $class = $option->getIsRequire() ? ' required' : '';
 $hasContainer = $option->getType() == ProductCustomOptionInterface::OPTION_TYPE_RADIO ||
     $option->getType() == ProductCustomOptionInterface::OPTION_TYPE_CHECKBOX;
 $item = $block->getItem();
+$valuesHtml = $block->getValuesHtml();
 ?>
 
-<div class="field<?= /* @noEscape */ $class ?>">
-    <label class="label" for="select_<?= $escaper->escapeHtmlAttr($option->getId()); ?>">
-        <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
-    </label>
-    <div class="control">
-        <?= $block->getValuesHtml(); ?>
-        <?php if ($option->getIsRequire()): ?>
-            <?php if ($hasContainer):?>
-                <span id="item-<?= $escaper->escapeHtmlAttr($item->getId()); ?>-options-<?= $escaper->escapeHtmlAttr($option->getId()); ?>-container"></span>
-            <?php endif; ?>
-        <?php endif;?>
+<?php if ($valuesHtml): ?>
+    <div class="field<?= /* @noEscape */ $class ?>">
+        <label class="label" for="select_<?= $escaper->escapeHtmlAttr($option->getId()); ?>">
+            <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
+        </label>
+        <div class="control">
+            <?= $valuesHtml; ?>
+            <?php if ($option->getIsRequire()): ?>
+                <?php if ($hasContainer):?>
+                    <span id="item-<?= $escaper->escapeHtmlAttr($item->getId()); ?>-options-<?= $escaper->escapeHtmlAttr($option->getId()); ?>-container"></span>
+                <?php endif; ?>
+            <?php endif;?>
+        </div>
     </div>
-</div>
+<?php endif; ?>
+
